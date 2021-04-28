@@ -1,0 +1,27 @@
+name: Release the ORGID subgraph to TheGraph instance
+
+on:
+  repository_dispatch:
+    types: [release_subgraph]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install dependencies
+        run: npm install
+      - name: Lerna link
+        run: npm run link
+      - name: Lerna bootstrap
+        run: npm run bootstrap
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Publish subgraph
+        run: npm run exec -- --scope @windingtree/org.id-subgraph npx graph auth <THEGRAPH_DEPLOYMENT_URI> $ACCESS_TOKEN && npm run deploy
+        env:
+          ACCESS_TOKEN: ${{secrets.GRAPH_ACCESS_TOKEN}}

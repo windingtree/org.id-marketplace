@@ -1,0 +1,37 @@
+{
+  "name": "@windingtree/org.id-marketplace",
+  "description": "ORGiD marketplace components monorepo",
+  "private": true,
+  "scripts": {
+    "link": "lerna link",
+    "lint": "lerna run lint",
+    "clean": "lerna clean",
+    "build": "lerna run build",
+    "bootstrap": "lerna bootstrap",
+    "test": "lerna run test",
+    "test:coverage": "lerna run test:coverage",
+    "exec": "lerna exec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windingtree/org.id-marketplace.git"
+  },
+  "keywords": [
+    "orgid",
+    "windingtree",
+    "marketplace"
+  ],
+  "author": "Winding Tree Developers <dev@windingtree.com>",
+  "contributors": [
+    "Kostiantyn Smyrnov <kostysh@gmail.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/windingtree/org.id-marketplace/issues"
+  },
+  "homepage": "https://github.com/windingtree/org.id-marketplace#readme",
+  "devDependencies": {
+    "husky": "6.0.0",
+    "lerna": "4.0.0"
+  }
+}

@@ -10,6 +10,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+          persist-credentials: false
       - run: npm install
       - run: npm run link
       - run: npm run bootstrap

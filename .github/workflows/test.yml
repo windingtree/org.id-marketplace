@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 12
       - run: git config --global url."https://${{ secrets.TOKEN_GITHUB }}@github.com/".insteadOf ssh://git@github.com/
-      - run: npm ci
+      - run: npm install
       - run: npm run link
       - run: npm run bootstrap
       - run: npm run lint

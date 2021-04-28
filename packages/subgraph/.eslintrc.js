@@ -47,6 +47,7 @@ module.exports = {
     '@typescript-eslint/no-unnecessary-condition': 0,
     '@typescript-eslint/no-unsafe-member-access': 0,
     '@typescript-eslint/no-unsafe-call': 0,
+    '@typescript-eslint/no-unsafe-return': 0,
   },
   overrides: [{
     files: ['*.spec.ts', '**/testing/**/*.ts'],

@@ -1,0 +1,30 @@
+{
+  "name": "@windingtree/org.id-subgraph",
+  "private": true,
+  "version": "1.2.0",
+  "description": "The ORGiD subgraph maps the ORGiD Contract with events in GraphQL",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"✔ Tests are skipped for the subgraph package\"",
+    "prepare:ropsten": "mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml && mustache config/ropsten.json src/constants.template.ts > src/constants.ts",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml && mustache config/mainnet.json src/constants.template.ts > src/constants.ts",
+    "codegen:graph": "graph codegen",
+    "import:abi": "node ./scripts/importAbi.js",
+    "codegen:ropsten": "npm run prepare:ropsten && npm run import:abi && npm run codegen:graph",
+    "codegen:mainnet": "npm run prepare:mainnet && npm run import:abi && npm run codegen:graph",
+    "build": "graph build",
+    "deploy:ropsten": "npm run codegen:ropsten && graph deploy --node <THEGRAPH_DEPLOYMENT_URI> --ipfs <IPFS_SERVER_URI>/ipfs/ windingtree/orgid-subgraph-ropsten",
+    "deploy:mainnet": "npm run codegen:mainnet && graph deploy --node <THEGRAPH_DEPLOYMENT_URI> --ipfs <IPFS_SERVER_URI>/ipfs/ windingtree/orgid-subgraph",
+    "deploy": "npm run deploy:ropsten && npm run deploy:mainnet",
+    "create-local": "graph create --node http://localhost:8020/ windingtree/orgid-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ windingtree/orgid-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 windingtree/orgid-subgraph"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.20.0",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "@windingtree/org.id": "1.1.5",
+    "@windingtree/org.id-directories": "1.0.0",
+    "mustache": "4.2.0"
+  }
+}

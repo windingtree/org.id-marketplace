@@ -1,0 +1,282 @@
+"GPS Coordinates of an organization"
+type Point @entity {
+  "ID is set to the ORGiD value"
+  id: ID!
+
+  "GPS Latitude"
+  latitude: BigDecimal
+
+  "GPS Longitude"
+  longitude: BigDecimal
+}
+
+"Physical Address of an organization"
+type OrganizationAddress @entity {
+  "ID is set to the ORGiD value"
+  id: ID!
+
+  "2-letters code of the country as per ISO standard"
+  country: String
+
+  "Country subdivision such as state or region"
+  subdivision: String
+
+  "Locality or City name"
+  locality: String
+
+  "Postal or Zip Code"
+  postalCode: String
+
+  "Street Address"
+  streetAddress: String
+
+  "Name or number of the premise"
+  premise: String
+
+  "GPS Coordinates of the location"
+  gps: Point
+}
+
+# The type of public keys
+enum PublicKeyType {
+  Unknown
+  secp256k1
+  X25519
+  ETH
+}
+
+"A Public Key to authenticate with other participants"
+type PublicKey @entity {
+  "ID of the public key as per W3C DID"
+  id: ID!
+
+  "W3C DID identifier of the public key"
+  did: String
+
+  "Organization owning the public key"
+  organization: Organization
+
+  "Type or algorithm of the Public Key"
+  type: PublicKeyType!
+
+  "PEM part of the Public Key"
+  publicKeyPem: String!
+
+  "DID controlling the Public Key"
+  controller: String
+
+  "Note from the Public Key owner"
+  note: String
+}
+
+"An API Service to expose to other participants to book content"
+type Service @entity {
+  "ID is set to orgId-DID"
+  id: ID!
+
+  "W3C DID identifier of the service"
+  did: String
+
+  "Organization exposing this service"
+  organization: Organization
+
+  "Service Endpoint or Base URL for the service requests"
+  serviceEndpoint: String!
+
+  "Type of service"
+  type: String
+  
+  "Version of service"
+  version: String
+
+  "Description of the service"
+  description: String
+
+  "URL for documentation of the API"
+  docs: String
+}
+
+"Define the Legal Entity type"
+type LegalEntity @entity {
+  "ID is set to the W3C DID value"
+  id: ID!
+  
+  "Legal name of the entity"
+  legalName: String
+
+  "Legal type of the entity"
+  legalType: String
+
+  "Legal identifier in the national business registry of the entity"
+  legalIdentifier: String
+
+  "Legal address of the entity"
+  registeredAddress: OrganizationAddress
+
+  "Associated Organization entity"
+  organization: Organization
+}
+
+"Define the Organizational Unit type"
+type OrganizationalUnit @entity {
+  "ID is set to the W3C DID value"
+  id: ID!
+
+  "Name of the entity"
+  name: String
+
+  "Description of the entity"
+  description: String
+
+  "Longer description of the entity"
+  longDescription: String
+
+  "Types of this entity (informative), consider using Directories for verified values"
+  type: [String!]
+
+  "Address of the entity"
+  address: OrganizationAddress
+
+  "Associated Organization entity"
+  organization: Organization
+}
+
+enum OrganizationType {
+  Unknown
+  LegalEntity
+  OrganizationalUnit
+}
+
+"Defines an Organization participating in the marketplace"
+type Organization @entity {
+  # ORGiD value
+  "ID is set to ORGiD value"
+  id: ID!
+
+  "did is set to the W3C DID value. Where possible, use the ID instead for performance."
+  did: String
+
+  # Mirrored from Smart-contract
+  "Ethereum address of the owner of the organization"
+  owner: Bytes! # address
+
+  "Active status of the entity"
+  isActive: Boolean
+
+  "Ethereum address of the director of the organization"
+  director: Bytes # address
+
+  "keccak-256 hash of the associated JSON file"
+  orgJsonHash: Bytes
+
+  "IPFS CID of the JSON file"
+  ipfsCid: String
+
+  # Mapping with other Organizations
+  "Sub-units of this organization"
+  units: [Organization!] @derivedFrom(field: "parent")
+
+  "Parent organization"
+  parent: Organization
+
+  # From offchain data
+  "Type of organization (LegalEntity or OrganizationalUnit)"
+  organizationType: OrganizationType!
+
+  "Associated Legal Entity object for Legal Entities (null otherwise)"
+  legalEntity: LegalEntity
+
+  "Associated OrganizationalUnit object for Organizational Units  (null otherwise)"
+  organizationalUnit: OrganizationalUnit
+
+  "Array of Public Keys associated with the Organization"
+  publicKey: [PublicKey!] @derivedFrom(field: "organization")
+
+  "Array of Services associated with the Organization"
+  service: [Service!] @derivedFrom(field: "organization")
+
+  "Directories where the organization is participating (Registered, Requested to join, ..)"
+  directories: [DirectoryOrganization!] @derivedFrom(field: "organization")
+
+  # Creation stats
+  "Timestamp of the Organization Creation"
+  createdAtTimestamp: BigInt!
+
+  "Block number when the organization was created"
+  createdAtBlockNumber: BigInt!
+}
+
+"Defines a Directory where organizations are verified"
+type Directory @entity {
+  "ID is set to the directory contract address"
+  id: ID!
+
+  "Segment (ie: Name) of the directory"
+  segment: String!
+
+  "Indicates if the directory itself has been removed: it is not an official directory anymore"
+  isRemoved: Boolean!
+
+  "List of Organizations interacting with this directory"
+  organizations: [DirectoryOrganization!] @derivedFrom(field: "directory")
+
+  "Timestamp of the directory addition in the official index"
+  addedAtTimestamp: BigInt!
+
+  "Block number when the directory was added in the official index"
+  addedAtBlockNumber: BigInt!
+
+  "Timestamp of the directory removal from the official index"
+  removedAtTimestamp: BigInt
+
+  "Block number when the directory was removed from the official index"
+  removedAtBlockNumber: BigInt
+}
+
+enum OrganizationRegistrationStatus {
+  Unknown                 # The organization status is unknown (transient state)
+  RegistrationRequested   # The organization has an open request
+  WithdrawalRequested     # The organization made a withdrawal request
+  Challenged              # The organization has been challenged
+  Registered              # The organization is registered
+  Removed                 # The organization has been removed from directory
+}
+
+"Defines a mapping between Directories and Organizations"
+type DirectoryOrganization @entity {
+  "Identifier of the organization-directory mapping"
+  id: ID!   # Set to `${directory.id}-${organization.id}`
+
+  "Organization party of the mapping"
+  organization: Organization!
+
+  "Segment (ie: Name) of the directory"
+  segment: String!
+
+  "Directory party of the mapping"
+  directory: Directory!
+
+  "Registration Status of the organization in the directory"
+  registrationStatus: OrganizationRegistrationStatus!
+
+  "Indicates if the organization is in the directory or not"
+  isIncluded: Boolean!
+
+  "GPS Latitude of the associated organization"
+  latitude: BigDecimal
+
+  "GPS Longitude of the associated organization"
+  longitude: BigDecimal
+
+  "Timestamp of the registration of the Organization in the Directory"
+  registeredAtTimestamp: BigInt
+
+  "Block number when the organization was registered in the Directory"
+  registeredAtBlockNumber: BigInt
+
+  "Timestamp when the organization was removed from the Directory"
+  removedAtTimestamp: BigInt
+
+  "Block number when the organization was removed from the Directory"
+  removedAtBlockNumber: BigInt
+}

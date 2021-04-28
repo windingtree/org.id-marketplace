@@ -1,0 +1,101 @@
+specVersion: 0.0.2
+description: ORGiD decentralized register for travel businesses
+repository: https://github.com/windingtree/org.id-marketplace/packages/subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: OrgId
+    network: {{network}}
+    source:
+      address: '{{orgIdAddress}}'
+      abi: OrgIdContract
+      startBlock: {{orgIdStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Organization
+      abis:
+        - name: OrgIdContract
+          file: ./abis/OrgId.json
+      eventHandlers:
+        - event: DirectorshipAccepted(indexed bytes32,indexed address)
+          handler: handleDirectorshipAccepted
+        - event: DirectorshipTransferred(indexed bytes32,indexed address,indexed address)
+          handler: handleDirectorshipTransferred
+        - event: OrgJsonChanged(indexed bytes32,indexed bytes32,string,string,string,indexed bytes32,string,string,string)
+          handler: handleOrgJsonChanged
+        - event: OrganizationActiveStateChanged(indexed bytes32,bool,bool)
+          handler: handleOrganizationActiveStateChanged
+        - event: OrganizationCreated(indexed bytes32,indexed address)
+          handler: handleOrganizationCreated
+        - event: OrganizationOwnershipTransferred(indexed bytes32,indexed address,indexed address)
+          handler: handleOrganizationOwnershipTransferred
+        - event: UnitCreated(indexed bytes32,indexed bytes32,indexed address)
+          handler: handleUnitCreated
+      file: ./src/mappings/orgId.ts
+#   - kind: ethereum/contract
+#     name: Directory
+#     network: {{network}}
+#     source:
+#       address: '{{directoryIndexAddress}}'
+#       abi: DirectoryIndexContract
+#       startBlock: {{directoryIndexStartBlock}}
+#     mapping:
+#       kind: ethereum/events
+#       apiVersion: 0.0.4
+#       language: wasm/assemblyscript
+#       entities:
+#         - Directory
+#       abis:
+#         - name: DirectoryIndexContract
+#           file: ./abis/DirectoryIndex.json
+#         - name: ArbitrableDirectoryContract
+#           file: ./abis/ArbitrableDirectory.json
+#       eventHandlers:
+#         - event: SegmentAdded(indexed address,indexed uint256)
+#           handler: handleDirectoryAdded
+#         - event: SegmentRemoved(indexed address)
+#           handler: handleDirectoryRemoved
+#       file: ./src/mappings/directoryIndex.ts
+# templates:
+#   - name: ArbitrableDirectoryTemplate
+#     kind: ethereum/contract
+#     network: {{network}}
+#     source:
+#       abi: ArbitrableDirectoryContract
+#     mapping:
+#       kind: ethereum/events
+#       apiVersion: 0.0.1
+#       language: wasm/assemblyscript
+#       file: ./src/mappings/arbitrableDirectory.ts
+#       entities:
+#         - Directory
+#       abis:
+#         - name: ArbitrableDirectoryContract
+#           file: ./abis/ArbitrableDirectory.json
+#       eventHandlers:
+#         - event: ChallengeContributed(indexed bytes32,uint256,address)
+#           handler: handleChallengeContributed
+#         - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+#           handler: handleDispute
+#         - event: Evidence(indexed address,indexed uint256,indexed address,string)
+#           handler: handleEvidence
+#         - event: MetaEvidence(indexed uint256,string)
+#           handler: handleMetaEvidence
+#         - event: OrganizationAdded(indexed bytes32,uint256)
+#           handler: handleOrganizationAdded
+#         - event: OrganizationChallenged(indexed bytes32,address,uint256)
+#           handler: handleOrganizationChallenged
+#         - event: OrganizationRemoved(indexed bytes32)
+#           handler: handleOrganizationRemoved
+#         - event: OrganizationRequestRemoved(indexed bytes32)
+#           handler: handleOrganizationRequestRemoved
+#         - event: OrganizationSubmitted(indexed bytes32)
+#           handler: handleOrganizationSubmitted
+#         - event: Ruling(indexed address,indexed uint256,uint256)
+#           handler: handleRuling
+#         - event: SegmentChanged(string,string)
+#           handler: handleDirectoryNameChanged

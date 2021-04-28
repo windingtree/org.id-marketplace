@@ -24,7 +24,7 @@ export class OrgJson {
   organizationalUnit: OrganizationalUnit
   //publicKey: PublicKey[]
   //service: Service[]
-};
+}
 
 // Get safely a property of an object
 function safeGet(jsonObject: TypedMap<string, JSONValue> | null, expectedKind: JSONValueKind, property: string): JSONValue | null {
@@ -34,14 +34,14 @@ function safeGet(jsonObject: TypedMap<string, JSONValue> | null, expectedKind: J
 
   // Check presence
   if (!jsonObject.isSet(property)) {
-    log.info('OrgJSON|{}|Missing property', [property])
+    log.info('OrgJSON|{}|Missing property', [property]);
     return null;
   }
 
   // Get the property value
-  let value = jsonObject.get(property);
+  const value = jsonObject.get(property);
   if (value.kind != expectedKind) {
-    log.error('OrgJSON|{}|Unexpected kind', [property])
+    log.error('OrgJSON|{}|Unexpected kind', [property]);
     return null;
   }
 
@@ -50,19 +50,19 @@ function safeGet(jsonObject: TypedMap<string, JSONValue> | null, expectedKind: J
 
 // Get a propeperty as string
 function getStringProperty(jsonObject: TypedMap<string, JSONValue> | null, property: string): string | null {
-  let value = safeGet(jsonObject, JSONValueKind.STRING, property);
+  const value = safeGet(jsonObject, JSONValueKind.STRING, property);
   return value != null ? value.toString() : null;
 }
 
 // Get a propeperty as object
 function getObjectProperty(jsonObject: TypedMap<string, JSONValue> | null, property: string): TypedMap<string, JSONValue> | null {
-  let value = safeGet(jsonObject, JSONValueKind.OBJECT, property);
+  const value = safeGet(jsonObject, JSONValueKind.OBJECT, property);
   return value != null ? value.toObject() : null;
 }
 
 // Get a propperty as array
 function getArrayProperty(jsonObject: TypedMap<string, JSONValue> | null, property: string): Array<JSONValue> | null {
-  let value = safeGet(jsonObject, JSONValueKind.ARRAY, property);
+  const value = safeGet(jsonObject, JSONValueKind.ARRAY, property);
   return value != null ? value.toArray() : null;
 }
 
@@ -85,16 +85,16 @@ function toAddress(orgId: string, jsonObject: TypedMap<string, JSONValue> | null
   outputAddress.postalCode = getStringProperty(jsonObject, 'postalCode');
 
   // Handle coordinates
-  let gpsCoordinates = getStringProperty(jsonObject, 'gps');
+  const gpsCoordinates = getStringProperty(jsonObject, 'gps');
   if (gpsCoordinates) {
-    let parts = gpsCoordinates.split(',');
+    const parts = gpsCoordinates.split(',');
     if (!parts || parts.length != 2) {
       log.error('OrgJSON|{}|Invalid GPS Coordinates format', [orgId]);
     } else {
-      let latitude = BigDecimal.fromString(parts[0]);
-      let longitude = BigDecimal.fromString(parts[1]);
+      const latitude = BigDecimal.fromString(parts[0]);
+      const longitude = BigDecimal.fromString(parts[1]);
       if (latitude && longitude) {
-        let point = new Point(orgId);
+        const point = new Point(orgId);
         point.latitude = latitude;
         point.longitude = longitude;
         point.save();
@@ -115,9 +115,9 @@ function toPublicKey(orgId: string, jsonObject: TypedMap<string, JSONValue> | nu
   }
 
   // Retrieve mandatory elements
-  let did = getStringProperty(jsonObject, 'id');
-  let pem = getStringProperty(jsonObject, 'publicKeyPem');
-  let type = getStringProperty(jsonObject, 'type');
+  const did = getStringProperty(jsonObject, 'id');
+  const pem = getStringProperty(jsonObject, 'publicKeyPem');
+  const type = getStringProperty(jsonObject, 'type');
 
   // Abort if mandatory elements are missing
   if ((did == null) || (pem == null) || (type == null)) {
@@ -126,7 +126,7 @@ function toPublicKey(orgId: string, jsonObject: TypedMap<string, JSONValue> | nu
   }
 
   // Determine the entity ID and safe load
-  let outputPublicKeyId = orgId.concat('-').concat(did);
+  const outputPublicKeyId = orgId.concat('-').concat(did);
   let outputPublicKey = PublicKey.load(outputPublicKeyId);
   if (!outputPublicKey) {
     outputPublicKey = new PublicKey(outputPublicKeyId);
@@ -159,8 +159,8 @@ function toService(orgId: string, jsonObject: TypedMap<string, JSONValue> | null
   }
 
   // Retrieve mandatory elements
-  let did = getStringProperty(jsonObject, 'id');
-  let serviceEndpoint = getStringProperty(jsonObject, 'serviceEndpoint');
+  const did = getStringProperty(jsonObject, 'id');
+  const serviceEndpoint = getStringProperty(jsonObject, 'serviceEndpoint');
 
   // Abort if mandatory elements are missing
   if ((did == null) || (serviceEndpoint == null)) {
@@ -169,7 +169,7 @@ function toService(orgId: string, jsonObject: TypedMap<string, JSONValue> | null
   }
 
   // Determine the entity ID and safe load
-  let outputServiceId = orgId.concat('-').concat(did);
+  const outputServiceId = orgId.concat('-').concat(did);
   let outputService = Service.load(outputServiceId);
   if (!outputService) {
     outputService = new Service(outputServiceId);
@@ -197,7 +197,7 @@ function toLegalEntity(orgId: string, jsonObject: TypedMap<string, JSONValue> | 
   }
 
   // Determine the ID and safe load
-  let outputLegalEntityId = 'did:orgid:'.concat(orgId);
+  const outputLegalEntityId = 'did:orgid:'.concat(orgId);
   let outputLegalEntity = LegalEntity.load(outputLegalEntityId);
   if (!outputLegalEntity) {
     outputLegalEntity = new LegalEntity(outputLegalEntityId);
@@ -209,9 +209,9 @@ function toLegalEntity(orgId: string, jsonObject: TypedMap<string, JSONValue> | 
   outputLegalEntity.legalIdentifier = getStringProperty(jsonObject, 'legalIdentifier');
 
   // Handle the address
-  let addressObject = getObjectProperty(jsonObject, 'registeredAddress');
+  const addressObject = getObjectProperty(jsonObject, 'registeredAddress');
   if (addressObject) {
-    let address = toAddress(orgId, addressObject);
+    const address = toAddress(orgId, addressObject);
     if (address) {
       address.save();
       outputLegalEntity.registeredAddress = address.id;
@@ -229,7 +229,7 @@ function toOrganizationalUnit(orgId: string, jsonObject: TypedMap<string, JSONVa
   }
 
   // Determine the ID and safe load
-  let outputOrganizationalUnitId = 'did:orgid:'.concat(orgId);
+  const outputOrganizationalUnitId = 'did:orgid:'.concat(orgId);
   let outputOrganizationalUnit = OrganizationalUnit.load(outputOrganizationalUnitId);
   if (!outputOrganizationalUnit) {
     outputOrganizationalUnit = new OrganizationalUnit(outputOrganizationalUnitId);
@@ -237,17 +237,17 @@ function toOrganizationalUnit(orgId: string, jsonObject: TypedMap<string, JSONVa
 
   // Handle legal name presence
   outputOrganizationalUnit.name = getStringProperty(jsonObject, 'name');
-  let types = getArrayProperty(jsonObject, 'type');
+  const types = getArrayProperty(jsonObject, 'type');
   if (types != null) {
-    outputOrganizationalUnit.type = (types as Array<JSONValue>).map<string>((value: JSONValue) => value.toString());
+    outputOrganizationalUnit.type = (types ).map<string>((value: JSONValue) => value.toString());
   }
   outputOrganizationalUnit.description = getStringProperty(jsonObject, 'description');
   outputOrganizationalUnit.longDescription = getStringProperty(jsonObject, 'longDescription');
 
   // Handle the address
-  let addressObject = getObjectProperty(jsonObject, 'address');
+  const addressObject = getObjectProperty(jsonObject, 'address');
   if (addressObject) {
-    let address = toAddress(orgId, addressObject);
+    const address = toAddress(orgId, addressObject);
     if (address) {
       address.save();
       outputOrganizationalUnit.address = address.id;
@@ -261,52 +261,52 @@ function toOrganizationalUnit(orgId: string, jsonObject: TypedMap<string, JSONVa
 export function resolve(orgId: string, ipfsCid: string): OrgJson | null {
 
   // Extract JSON document
-  let orgJsonValue = getJson(ipfsCid, JSONValueKind.OBJECT);
+  const orgJsonValue = getJson(ipfsCid, JSONValueKind.OBJECT);
   if (!orgJsonValue) {
-    log.warning('OrgJson|{}|Error fetching JSON', [ipfsCid])
+    log.warning('OrgJson|{}|Error fetching JSON', [ipfsCid]);
     return null;
   }
-  let orgJsonObject = orgJsonValue.toObject()
-  let orgJson = new OrgJson()
+  const orgJsonObject = orgJsonValue.toObject();
+  const orgJson = new OrgJson();
 
   // Process DID
   orgJson.did = getStringProperty(orgJsonObject, 'id');
   if (!orgJson.did) {
     log.error('orgJson|{}|Missing did', []);
-    return null
+    return null;
   }
 
   // Process Legal Entity
-  let legalEntityObject = getObjectProperty(orgJsonObject, 'legalEntity');
+  const legalEntityObject = getObjectProperty(orgJsonObject, 'legalEntity');
   if (legalEntityObject) {
     orgJson.organizationalType = 'LegalEntity';
-    let legalEntity = toLegalEntity(orgId, legalEntityObject);
+    const legalEntity = toLegalEntity(orgId, legalEntityObject);
     if (legalEntity != null) {
-      orgJson.legalEntity = legalEntity as LegalEntity;
+      orgJson.legalEntity = legalEntity ;
       orgJson.legalEntity.organization = orgId;
       orgJson.legalEntity.save();
     }
   }
 
   // Process Organizational Unit
-  let organizationalUnitObject = getObjectProperty(orgJsonObject, 'organizationalUnit');
+  const organizationalUnitObject = getObjectProperty(orgJsonObject, 'organizationalUnit');
   if (organizationalUnitObject) {
     orgJson.organizationalType = 'OrganizationalUnit';
-    let organizationalUnit = toOrganizationalUnit(orgId, organizationalUnitObject);
+    const organizationalUnit = toOrganizationalUnit(orgId, organizationalUnitObject);
     if (organizationalUnit) {
-      orgJson.organizationalUnit = organizationalUnit as OrganizationalUnit;
+      orgJson.organizationalUnit = organizationalUnit ;
       orgJson.organizationalUnit.organization = orgId;
       orgJson.organizationalUnit.save();
     }
   }
 
   // Process Public Keys
-  let publicKeyArray = getArrayProperty(orgJsonObject, 'publicKey');
+  const publicKeyArray = getArrayProperty(orgJsonObject, 'publicKey');
   if (publicKeyArray) {
     for(let i=0; i<publicKeyArray.length; i++) {
-      let publicKeyValue = (publicKeyArray as Array<JSONValue>)[i];
+      const publicKeyValue = (publicKeyArray )[i];
       if (publicKeyValue.kind == JSONValueKind.OBJECT) {
-        let publicKey = toPublicKey(orgId, publicKeyValue.toObject());
+        const publicKey = toPublicKey(orgId, publicKeyValue.toObject());
         if (publicKey != null) {
           publicKey.save();
         }
@@ -315,12 +315,12 @@ export function resolve(orgId: string, ipfsCid: string): OrgJson | null {
   }
 
   // Process Service list
-  let serviceArray = getArrayProperty(orgJsonObject, 'service');
+  const serviceArray = getArrayProperty(orgJsonObject, 'service');
   if (serviceArray) {
     for(let i=0; i<serviceArray.length; i++) {
-      let serviceValue = (serviceArray as Array<JSONValue>)[i];
+      const serviceValue = (serviceArray )[i];
       if (serviceValue.kind == JSONValueKind.OBJECT) {
-        let service = toService(orgId, serviceValue.toObject());
+        const service = toService(orgId, serviceValue.toObject());
         if (service != null) {
           service.save();
         }

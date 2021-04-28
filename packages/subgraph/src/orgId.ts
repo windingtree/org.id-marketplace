@@ -15,7 +15,7 @@ import {
 import { Organization } from '../generated/schema';
 
 // ORGiD Contract
-export let orgidContract = OrgIdContract.bind(Address.fromString(ORGID_ADDRESS));
+export const orgidContract = OrgIdContract.bind(Address.fromString(ORGID_ADDRESS));
 
 // Get organization from contract
 export function getOrganizationFromContract(id: Bytes): Organization | null {
@@ -28,7 +28,7 @@ export function getOrganizationFromContract(id: Bytes): Organization | null {
   }
 
   // Retrieve additional details from smartcontract
-  let getOrganizationCallResult = orgidContract.try_getOrganization(id);
+  const getOrganizationCallResult = orgidContract.try_getOrganization(id);
 
   // Check if the call reverted
   if (getOrganizationCallResult.reverted) {
@@ -37,13 +37,13 @@ export function getOrganizationFromContract(id: Bytes): Organization | null {
   }
 
   // Retrieve values from contract
-  let exists                 = <boolean>getOrganizationCallResult.value.value0;
-  let orgJsonHash            = <Bytes>getOrganizationCallResult.value.value2;
-  let parentOrgId            = <Bytes>getOrganizationCallResult.value.value6;
-  let owner                  = <Address>getOrganizationCallResult.value.value7;
-  let director               = <Address>getOrganizationCallResult.value.value8;
-  let isActive               = <boolean>getOrganizationCallResult.value.value9;
-  let isDirectorshipAccepted = <boolean>getOrganizationCallResult.value.value10;
+  const exists                 = getOrganizationCallResult.value.value0;
+  const orgJsonHash            = getOrganizationCallResult.value.value2;
+  const parentOrgId            = getOrganizationCallResult.value.value6;
+  const owner                  = getOrganizationCallResult.value.value7;
+  const director               = getOrganizationCallResult.value.value8;
+  const isActive               = getOrganizationCallResult.value.value9;
+  const isDirectorshipAccepted = getOrganizationCallResult.value.value10;
 
   // Check if the organization exists
   if (!exists) {

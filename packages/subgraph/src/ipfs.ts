@@ -13,14 +13,14 @@ import { encode } from './base32';
 // Spec: https://github.com/multiformats/cid
 export function cidFromHash(orgJsonHash: Bytes): string {
   // Determine CID values
-  const version = 0x01 // CIDv1 - https://github.com/multiformats/multicodec
-  const codec = 0x55 // raw - https://github.com/multiformats/multicodec
-  const multihashFunctionType = 0x1b // keccak-256 - https://multiformats.io/multihash/
-  const multihashDigestlength = 0x20 // 256 bits   - https://multiformats.io/multihash/
-  let multihashDigestValue  = orgJsonHash // Hex string without 0x prefix
+  const version = 0x01; // CIDv1 - https://github.com/multiformats/multicodec
+  const codec = 0x55; // raw - https://github.com/multiformats/multicodec
+  const multihashFunctionType = 0x1b; // keccak-256 - https://multiformats.io/multihash/
+  const multihashDigestlength = 0x20; // 256 bits   - https://multiformats.io/multihash/
+  const multihashDigestValue  = orgJsonHash; // Hex string without 0x prefix
 
   // Construct CID Raw Hex string
-  let rawCid = new Bytes(orgJsonHash.length + 4)
+  const rawCid = new Bytes(orgJsonHash.length + 4);
   rawCid[0] = version;
   rawCid[1] = codec;
   rawCid[2] = multihashFunctionType;
@@ -38,7 +38,7 @@ export function cidFromHash(orgJsonHash: Bytes): string {
 // Uses .cat() to protect against timeouts or unpinned files
 export function getJson(ipfsCid: string, expectkind: JSONValueKind): JSONValue | null {
   // Retrieve the Organization from IPFS
-  let jsonBytes = ipfs.cat(ipfsCid);
+  const jsonBytes = ipfs.cat(ipfsCid);
 
   if (!jsonBytes) {
     log.warning('IPFS|{}|Could not retrieve CID', [ipfsCid]);
@@ -46,7 +46,8 @@ export function getJson(ipfsCid: string, expectkind: JSONValueKind): JSONValue |
   }
 
   // Extract JSON document
-  let jsonValue = json.fromBytes(jsonBytes as Bytes);
+  const jsonValue = json.fromBytes(jsonBytes);
+
   if (!jsonValue) {
     log.warning('IPFS|{}|Data retrieved is not JSON', [ipfsCid]);
     return null;
@@ -57,5 +58,5 @@ export function getJson(ipfsCid: string, expectkind: JSONValueKind): JSONValue |
     return null;
   }
 
-  return jsonValue
+  return jsonValue;
 }
